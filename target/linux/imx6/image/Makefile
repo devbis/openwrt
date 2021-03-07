@@ -127,6 +127,27 @@ define Device/Default
   IMAGES :=
 endef
 
+define Device/lumi
+  DEVICE_VENDOR := Xiaomi
+  DEVICE_MODEL := Lumi Gateway
+  DEVICE_VARIANT := MIEU01
+  DEVICE_NAME := xiaomi,gateway-lumi
+
+  KERNEL_INSTALL := 0
+  KERNEL_NAME := zImage
+  KERNEL_SUFFIX := -zImage
+  KERNEL := kernel-bin
+  IMAGES := sysupgrade.bin dtb rootfs.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/rootfs.bin := append-rootfs
+  IMAGE/dtb := install-dtb
+
+  DEVICE_DTS:= \
+	imx6ull-xiaomi-lumi
+endef
+TARGET_DEVICES += lumi
+
+
 define Device/ventana
   DEVICE_VENDOR := Gateworks
   DEVICE_MODEL := Ventana family

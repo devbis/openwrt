@@ -60,7 +60,8 @@ platform_check_image() {
 	gw,imx6q-gw5907 |\
 	gw,imx6q-gw5910 |\
 	gw,imx6q-gw5912 |\
-	gw,imx6q-gw5913 )
+	gw,imx6q-gw5913 |\
+	xiaomi,gateway-lumi )
 		nand_do_platform_check $board $1
 		return $?;
 		;;
@@ -103,7 +104,8 @@ platform_do_upgrade() {
 	gw,imx6q-gw5907 |\
 	gw,imx6q-gw5910 |\
 	gw,imx6q-gw5912 |\
-	gw,imx6q-gw5913 )
+	gw,imx6q-gw5913 |\
+	xiaomi,gateway-lumi )
 		nand_do_upgrade "$1"
 		;;
 	toradex,apalis_imx6q-eval |\
