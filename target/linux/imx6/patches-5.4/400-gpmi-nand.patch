@@ -686,24 +686,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  	}
  
  	return 0;
-@@ -2537,6 +2802,16 @@ static int gpmi_nfc_exec_op(struct nand_
- 		}
- 	}
- 
-+	if (this->bch && buf_read) {
-+		to = wait_for_completion_timeout(bch_completion, msecs_to_jiffies(1000));
-+		if (!to) {
-+			dev_err(this->dev, "BCH timeout, last DMA\n");
-+			gpmi_dump_info(this);
-+			ret = -ETIMEDOUT;
-+			goto unmap;
-+		}
-+	}
-+
- 	writel(BM_BCH_CTRL_COMPLETE_IRQ_EN,
- 	       this->resources.bch_regs + HW_BCH_CTRL_CLR);
- 	gpmi_clear_bch(this);
-@@ -2574,6 +2849,7 @@ static int gpmi_nand_init(struct gpmi_na
+@@ -2574,6 +2839,7 @@ static int gpmi_nand_init(struct gpmi_na
  {
  	struct nand_chip *chip = &this->nand;
  	struct mtd_info  *mtd = nand_to_mtd(chip);
@@ -711,7 +694,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  	int ret;
  
  	/* init the MTD data structures */
-@@ -2604,7 +2880,12 @@ static int gpmi_nand_init(struct gpmi_na
+@@ -2604,7 +2870,12 @@ static int gpmi_nand_init(struct gpmi_na
  	this->base.ops = &gpmi_nand_controller_ops;
  	chip->controller = &this->base;
  
@@ -725,7 +708,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  	if (ret)
  		goto err_out;
  
-@@ -2638,11 +2919,23 @@ static const struct of_device_id gpmi_na
+@@ -2638,11 +2909,23 @@ static const struct of_device_id gpmi_na
  		.compatible = "fsl,imx6q-gpmi-nand",
  		.data = &gpmi_devdata_imx6q,
  	}, {
@@ -749,7 +732,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  	}, {}
  };
  MODULE_DEVICE_TABLE(of, gpmi_nand_id_table);
-@@ -2673,15 +2966,9 @@ static int gpmi_nand_probe(struct platfo
+@@ -2673,15 +2956,9 @@ static int gpmi_nand_probe(struct platfo
  	if (ret)
  		goto exit_acquire_resources;
  
@@ -766,7 +749,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  
  	ret = gpmi_init(this);
  	if (ret)
-@@ -2691,15 +2978,12 @@ static int gpmi_nand_probe(struct platfo
+@@ -2691,15 +2968,12 @@ static int gpmi_nand_probe(struct platfo
  	if (ret)
  		goto exit_nfc_init;
  
@@ -783,7 +766,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  	pm_runtime_disable(&pdev->dev);
  	release_resources(this);
  exit_acquire_resources:
-@@ -2711,7 +2995,6 @@ static int gpmi_nand_remove(struct platf
+@@ -2711,7 +2985,6 @@ static int gpmi_nand_remove(struct platf
  {
  	struct gpmi_nand_data *this = platform_get_drvdata(pdev);
  
@@ -791,7 +774,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  	pm_runtime_disable(&pdev->dev);
  
  	nand_release(&this->nand);
-@@ -2723,10 +3006,12 @@ static int gpmi_nand_remove(struct platf
+@@ -2723,10 +2996,12 @@ static int gpmi_nand_remove(struct platf
  #ifdef CONFIG_PM_SLEEP
  static int gpmi_pm_suspend(struct device *dev)
  {
@@ -807,7 +790,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  }
  
  static int gpmi_pm_resume(struct device *dev)
-@@ -2734,9 +3019,13 @@ static int gpmi_pm_resume(struct device
+@@ -2734,9 +3009,13 @@ static int gpmi_pm_resume(struct device
  	struct gpmi_nand_data *this = dev_get_drvdata(dev);
  	int ret;
  
@@ -823,7 +806,7 @@ Index: linux-5.4.102/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
  
  	/* re-init the GPMI registers */
  	ret = gpmi_init(this);
-@@ -2756,22 +3045,44 @@ static int gpmi_pm_resume(struct device
+@@ -2756,22 +3035,44 @@ static int gpmi_pm_resume(struct device
  		return ret;
  	}
  
